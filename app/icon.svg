@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800">
+  <!-- The Pulse mark: two overlapping discs with a diamond cut where they
+       meet. Taken from the logo artwork so the tab icon matches the wordmark
+       in the hero. -->
+  <rect width="1200" height="800" fill="#3D4A22"/>
+  <circle cx="510" cy="400" r="160" fill="#FAFAF8"/>
+  <circle cx="690" cy="400" r="160" fill="#FAFAF8"/>
+  <path d="M600 240 L690 400 L600 560 L510 400 Z" fill="#3D4A22"/>
+</svg>

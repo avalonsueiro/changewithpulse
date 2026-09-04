@@ -1,0 +1,57 @@
+:root {
+  --bg: #FAFAF8;
+  --ink: #0F0F0D;
+  --olive: #3D4A22;
+  --olive-dark: #2C3618;
+  --sage: #C7D2B8;
+  --line: #E2E0DA;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-jost), sans-serif;
+}
+
+a { color: var(--olive); }
+a:hover { color: var(--olive-dark); }
+
+:focus { outline: none; }
+:focus-visible { outline: 2px solid var(--olive); outline-offset: 2px; }
+::selection { background: var(--sage); }
+
+input::placeholder { color: #8A8880; letter-spacing: 0.04em; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* The hero frame is 16:9 on wide screens, which is what the footage was shot
+   for. Below ~720px that ratio makes the box shorter than the type inside it
+   — a 375px viewport yields a 211px-tall frame, which clips the headline and
+   pushes the form out of the bottom edge. Under that width the frame is
+   allowed to grow to fit its content instead, and the video's object-fit
+   crops to suit. */
+.hero-frame {
+  aspect-ratio: 16 / 9;
+}
+
+@media (max-width: 720px) {
+  .hero-frame {
+    aspect-ratio: auto;
+    min-height: min(76vh, 600px);
+  }
+}
+
+/* Hiding the video leaves the poster, which is painted as the frame's
+   background — so the hero still reads for anyone who has asked the OS to
+   reduce motion, and their browser skips a 37 MB download. */
+@media (prefers-reduced-motion: reduce) {
+  .hero-video { display: none; }
+  * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
+}
