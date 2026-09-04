@@ -2,6 +2,8 @@ import "server-only";
 
 import { Resend } from "resend";
 
+import { siteUrl } from "./site-url";
+
 const FROM = process.env.EMAIL_FROM ?? "Pulse <onboarding@resend.dev>";
 const REPLY_TO = process.env.EMAIL_REPLY_TO;
 
@@ -14,13 +16,12 @@ function client(): Resend | null {
   return resend;
 }
 
-export function siteUrl(): string {
-  const raw =
-    process.env.NEXT_PUBLIC_SITE_URL ??
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) ??
-    "http://localhost:3000";
-  return raw.replace(/\/+$/, "");
-}
+// Re-exported so the confirm and unsubscribe routes keep importing it from
+// here, while the resolution logic lives in one place. The copy that used to
+// live in this file had the same `??`-does-not-catch-empty-string bug as the
+// layout: it would not have thrown, it would have quietly emailed everyone a
+// link to "/api/confirm?token=…" with no origin in front of it.
+export { siteUrl };
 
 export type SendResult = { delivered: boolean; reason?: string };
 

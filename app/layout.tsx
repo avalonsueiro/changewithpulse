@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Instrument_Serif, Jost } from "next/font/google";
+
+import { siteUrl } from "@/lib/site-url";
 import "./globals.css";
 
 const instrumentSerif = Instrument_Serif({
@@ -17,14 +19,12 @@ const jost = Jost({
 const DESCRIPTION =
   "Simulate how your organization will react to a rollout before you launch it, team by team and person by person.";
 
-const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL ??
-  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
-
 export const metadata: Metadata = {
   // metadataBase resolves the relative OG image below to an absolute URL.
   // Without it Next warns at build time and social cards render imageless.
-  metadataBase: new URL(siteUrl),
+  // siteUrl() is guaranteed to return a parseable origin — see lib/site-url.ts
+  // for why that guarantee is load-bearing here.
+  metadataBase: new URL(siteUrl()),
   title: "Pulse — Change is hard.",
   description: DESCRIPTION,
   openGraph: {
