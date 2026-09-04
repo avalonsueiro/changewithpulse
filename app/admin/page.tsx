@@ -33,7 +33,7 @@ export default async function AdminPage({
     return (
       <Shell>
         <Notice>
-          Supabase is not configured. Set <Code>NEXT_PUBLIC_SUPABASE_URL</Code> and{" "}
+          Supabase is not configured. Set <Code>SUPABASE_URL</Code> and{" "}
           <Code>SUPABASE_SERVICE_ROLE_KEY</Code>, then reload.
         </Notice>
       </Shell>

@@ -37,9 +37,21 @@ function normalize(value: string): string | null {
   }
 }
 
+/**
+ * SITE_URL is not prefixed with NEXT_PUBLIC_ because nothing in the browser
+ * reads it — the layout uses it for metadataBase and the mailer uses it to
+ * build absolute links, both server-side. The client form posts to relative
+ * paths and needs no origin at all. NEXT_PUBLIC_SITE_URL is still honoured so
+ * an existing deployment keeps working, but SITE_URL is the one to set.
+ */
+function configuredSiteUrl(): string {
+  const preferred = clean(process.env.SITE_URL);
+  return preferred || clean(process.env.NEXT_PUBLIC_SITE_URL);
+}
+
 export function siteUrl(): string {
   // Explicit configuration wins.
-  const configured = normalize(clean(process.env.NEXT_PUBLIC_SITE_URL));
+  const configured = normalize(configuredSiteUrl());
   if (configured) return configured;
 
   // Vercel sets this per-deployment. It has no protocol, hence withProtocol().
@@ -47,7 +59,7 @@ export function siteUrl(): string {
   if (vercel) {
     if (process.env.NODE_ENV === "production") {
       console.warn(
-        "[pulse] NEXT_PUBLIC_SITE_URL is unset or empty — falling back to VERCEL_URL. " +
+        "[pulse] SITE_URL is unset or empty — falling back to VERCEL_URL. " +
           "Set it explicitly, or preview deploys will email links pointing at themselves.",
       );
     }
@@ -57,7 +69,7 @@ export function siteUrl(): string {
   if (process.env.NODE_ENV === "production") {
     console.warn(
       `[pulse] No usable site URL configured; using ${FALLBACK}. ` +
-        "Confirmation links will be unusable until NEXT_PUBLIC_SITE_URL is set.",
+        "Confirmation links will be unusable until SITE_URL is set.",
     );
   }
   return FALLBACK;
