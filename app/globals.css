@@ -31,21 +31,156 @@ input::placeholder { color: #8A8880; letter-spacing: 0.04em; }
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* The hero frame is 16:9 on wide screens, which is what the footage was shot
-   for. Below ~720px that ratio makes the box shorter than the type inside it
-   — a 375px viewport yields a 211px-tall frame, which clips the headline and
-   pushes the form out of the bottom edge. Under that width the frame is
-   allowed to grow to fit its content instead, and the video's object-fit
-   crops to suit. */
-.hero-frame {
-  aspect-ratio: 16 / 9;
+/* ── Hero ──────────────────────────────────────────────────────────────────
+
+   The frame is sized to CONTAIN itself in the window — capped by the
+   available width and, through the third term of the width min(), by the
+   available height as well.
+
+   A bare `aspect-ratio` derives height from width and never consults the
+   window's height at all. That produced two failures: a 1200x420 window got
+   a 630px-tall card (140% of the viewport, overflowing and scrolling), while
+   a 2560x1080 one left the same card marooned at 26% of the screen.
+
+   Because the third term is expressed in dvh, the card now shrinks to fit
+   short windows and grows into tall ones. object-fit: cover on the video
+   crops to whatever shape results, so the footage always fills the frame. */
+
+:root {
+  --hero-pad: clamp(16px, 3vw, 32px);
 }
 
+.hero-section {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--hero-pad);
+}
+
+.hero-frame {
+  /* Numeric twin of the ratio so it can be multiplied inside calc(). */
+  --hero-ar: 1.7778;
+
+  position: relative;
+  aspect-ratio: var(--hero-ar);
+  width: min(
+    100%,
+    1440px,
+    calc((100dvh - var(--hero-pad) * 2) * var(--hero-ar))
+  );
+
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  /* The poster doubles as the frame's background, so it is painted before the
+     video has a single byte — and it is what remains when reduced motion
+     hides the video. */
+  background: #EFEEE9 url("/hero-poster.jpg") center / cover no-repeat;
+
+  /* Makes cqw/cqh below resolve against the card, so the type scales with
+     the frame rather than the window. */
+  container-type: size;
+  container-name: hero;
+}
+
+/* The card's proportions track the window's, clamped to a range that still
+   composes well, so it stays generous on an ultrawide monitor and on a
+   portrait tablet instead of holding one shape and wasting the remainder. */
+@media (min-aspect-ratio: 2 / 1) { .hero-frame { --hero-ar: 2.2; } }
+@media (max-aspect-ratio: 5 / 4) { .hero-frame { --hero-ar: 1.25; } }
+@media (max-aspect-ratio: 4 / 5) { .hero-frame { --hero-ar: 0.85; } }
+
+/* Below this width the type needs more height than any window-derived ratio
+   would give it, so the card is allowed to grow taller than the window's
+   proportions suggest. Must stay last — it overrides the ratios above. */
 @media (max-width: 720px) {
   .hero-frame {
     aspect-ratio: auto;
-    min-height: min(76vh, 600px);
+    width: 100%;
+    /* A definite height, not min-height. Under container-type: size a height
+       of `auto` is an indefinite block size, which makes every cqh unit
+       inside resolve to zero — collapsing the type to its clamp floor. The
+       children are absolutely positioned, so the box never sized itself from
+       content anyway and nothing is lost by pinning it. */
+    height: min(76dvh, 600px);
   }
+}
+
+.hero-video,
+.hero-scrim,
+.hero-content {
+  position: absolute;
+  inset: 0;
+}
+
+.hero-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hero-scrim {
+  background: linear-gradient(
+    180deg,
+    rgba(15, 15, 13, 0.14) 0%,
+    rgba(15, 15, 13, 0.42) 100%
+  );
+}
+
+/* Every size below is in container units, so the composition holds its
+   proportions whether the card is 343px wide on a phone or 1440px on a
+   desktop. Each is min()'d against both axes then clamped, so a card that is
+   wide but short scales its type down to the height rather than overflowing. */
+.hero-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: clamp(16px, 5cqw, 64px);
+  /* Reserves the strip the wordmark sits in, so the centred block clears it. */
+  padding-bottom: clamp(56px, 18cqh, 132px);
+}
+
+.hero-title {
+  font-family: var(--font-instrument-serif), serif;
+  font-weight: 400;
+  font-size: clamp(2rem, min(12.5cqw, 15cqh), 7.5rem);
+  line-height: 0.95;
+  letter-spacing: -0.035em;
+  color: #fafaf8;
+  margin: 0 0 clamp(10px, 3cqh, 28px);
+  text-shadow: 0 2px 24px rgba(15, 15, 13, 0.28);
+}
+
+.hero-sub {
+  max-width: 40ch;
+  font-size: clamp(14px, min(2.6cqw, 3.4cqh), 18px);
+  line-height: 1.7;
+  color: rgba(250, 250, 248, 0.88);
+  margin: 0 0 clamp(16px, 5cqh, 44px);
+  text-shadow: 0 1px 12px rgba(15, 15, 13, 0.32);
+}
+
+.hero-logo {
+  position: absolute;
+  bottom: clamp(12px, 5cqh, 40px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: clamp(96px, min(12cqw, 15cqh), 150px);
+  height: auto;
+  /* The source logo is dark-on-white; inverting and screen-blending drops the
+     white box out so it reads as light marks over the video. */
+  filter: invert(1);
+  mix-blend-mode: screen;
+}
+
+/* Landscape phones and short desktop windows: the subtitle is the first
+   thing to sacrifice, since the headline and the form carry the page. */
+@media (max-height: 460px) {
+  .hero-sub { display: none; }
 }
 
 /* Hiding the video leaves the poster, which is painted as the frame's
