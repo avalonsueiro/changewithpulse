@@ -43,13 +43,20 @@ service-role key from server-only route handlers.
 
 ## Environment
 
-See `.env.example` for the annotated list. In short:
+See `.env.example` for the annotated list. **None of these use the
+`NEXT_PUBLIC_` prefix**: every value is read on the server only — the browser
+form posts to relative paths and needs no configuration — so nothing is inlined
+into the client bundle. `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SITE_URL`
+are still accepted as deprecated aliases so an existing deployment keeps
+working.
+
+In short:
 
 | Variable | Required | Purpose |
 | --- | --- | --- |
-| `NEXT_PUBLIC_SUPABASE_URL` | yes | Project URL |
+| `SUPABASE_URL` | yes | Project URL |
 | `SUPABASE_SERVICE_ROLE_KEY` | yes | Server-side DB access. Never expose |
-| `NEXT_PUBLIC_SITE_URL` | production | Origin for confirm/unsubscribe links |
+| `SITE_URL` | production | Origin for confirm/unsubscribe links |
 | `RESEND_API_KEY` | to send mail | Omit and links go to the console |
 | `EMAIL_FROM` | to send mail | Must be a Resend-verified domain |
 | `ADMIN_USER` / `ADMIN_PASSWORD` | yes | Guards `/admin`. Unset = locked |
@@ -87,7 +94,7 @@ should carry the mailing list, not the security material.
 ## Deploying to Vercel
 
 1. Import the repo.
-2. Add every variable from the table above. Set `NEXT_PUBLIC_SITE_URL` to the
+2. Add every variable from the table above. Set `SITE_URL` to the
    production origin so preview deploys do not mail links pointing at
    themselves.
 3. Deploy. `public/hero.mp4` (37 MB) is committed to the repo and served as a
