@@ -53,10 +53,19 @@ create index if not exists signups_status_idx
   on public.signups (status);
 
 -- Keep updated_at honest without relying on every caller to set it.
+--
+-- SECURITY INVOKER, not DEFINER. Postgres grants EXECUTE to PUBLIC on every
+-- new function, so a SECURITY DEFINER function living in `public` is callable
+-- by anon and authenticated and runs with the owner's privileges — which for
+-- a table this locked down would be the one way in. This only stamps a
+-- timestamp during a trigger; it needs no elevation at all.
+--
+-- The empty search_path is still worth keeping: it stops a caller-controlled
+-- path from resolving now() or any other reference to a shadowing object.
 create or replace function public.set_updated_at()
 returns trigger
 language plpgsql
-security definer
+security invoker
 set search_path = ''
 as $$
 begin
@@ -75,3 +84,9 @@ alter table public.signups enable row level security;
 
 -- No policies are defined on purpose: with RLS enabled and zero policies,
 -- anon and authenticated are denied everything. service_role bypasses RLS.
+
+-- Belt and braces. RLS already denies every row to these roles, but revoking
+-- the grants as well means the table is inaccessible through the Data API
+-- even if a policy is ever added by accident. This table is only ever reached
+-- by the service-role key from server-only route handlers.
+revoke all on public.signups from anon, authenticated;
