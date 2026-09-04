@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRef, useState } from "react";
 
 type Status = "idle" | "loading" | "error" | "success";
@@ -256,6 +257,18 @@ export default function WaitlistForm() {
           {message}
         </span>
       ) : null}
+
+      {/*
+        Consent has to be visible at the point of collection to mean anything,
+        so this sits with the field rather than being buried in the footer. It
+        states the purpose, the frequency, and the way out — the three things
+        that make consent informed.
+      */}
+      <p className="hero-consent">
+        We will email you once to confirm, then only when access opens.
+        Unsubscribe any time. See our{" "}
+        <Link href="/privacy">Privacy Policy</Link>.
+      </p>
     </form>
   );
 }

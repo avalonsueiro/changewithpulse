@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 import WaitlistForm from "./WaitlistForm";
 
@@ -50,6 +51,14 @@ export default function Hero() {
           <WaitlistForm />
         </div>
       </div>
+
+      <footer className="hero-footer">
+        <span>© {new Date().getFullYear()} Pulse</span>
+        <span aria-hidden="true">·</span>
+        <Link href="/privacy">Privacy</Link>
+        <span aria-hidden="true">·</span>
+        <Link href="/terms">Terms</Link>
+      </footer>
     </section>
   );
 }
