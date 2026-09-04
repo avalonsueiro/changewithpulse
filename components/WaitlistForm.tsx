@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useRef, useState } from "react";
 
 type Status = "idle" | "loading" | "error" | "success";
@@ -259,16 +258,17 @@ export default function WaitlistForm() {
       ) : null}
 
       {/*
-        Consent has to be visible at the point of collection to mean anything,
-        so this sits with the field rather than being buried in the footer. It
-        states the purpose, the frequency, and the way out — the three things
-        that make consent informed.
+        GDPR Art. 7(3) requires that the right to withdraw consent be disclosed
+        BEFORE consent is given, not only in the emails afterwards — hence this
+        sitting with the field rather than in the footer.
+
+        The Art. 13 disclosures (controller, purposes, recipients, retention,
+        rights) are carried by the privacy policy, reached from the footer link
+        directly below the card. That link is doing the heavier legal lifting
+        of the two; if the footer is ever restructured, the policy still has to
+        be reachable from this screen.
       */}
-      <p className="hero-consent">
-        We will email you once to confirm, then only when access opens.
-        Unsubscribe any time. See our{" "}
-        <Link href="/privacy">Privacy Policy</Link>.
-      </p>
+      <p className="hero-consent">Unsubscribe any time.</p>
     </form>
   );
 }
