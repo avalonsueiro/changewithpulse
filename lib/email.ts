@@ -2,7 +2,7 @@ import "server-only";
 
 import { Resend } from "resend";
 
-import { siteUrl } from "./site-url";
+import { isOriginMailable, siteUrl } from "./site-url";
 
 const FROM = process.env.EMAIL_FROM ?? "Pulse <onboarding@resend.dev>";
 const REPLY_TO = process.env.EMAIL_REPLY_TO;
@@ -41,6 +41,21 @@ export async function sendConfirmationEmail(
 ): Promise<SendResult> {
   const confirmUrl = `${siteUrl()}/api/confirm?token=${encodeURIComponent(confirmToken)}`;
   const unsubscribeUrl = `${siteUrl()}/api/unsubscribe?token=${encodeURIComponent(unsubscribeToken)}`;
+
+  // Refuse to mail a link that is broken on arrival. A per-deployment Vercel
+  // hostname behind Deployment Protection bounces the recipient through SSO,
+  // which strips ?token=, so the confirm route sees no token and reports the
+  // link as invalid. Sending nothing is better than sending that: a missing
+  // email gets investigated, whereas a link that fails for every recipient
+  // looks like the user's fault and can run for weeks unnoticed.
+  if (!isOriginMailable()) {
+    console.error(
+      `[pulse] Refusing to send to ${email}: resolved origin ${siteUrl()} is a ` +
+        "per-deployment hostname, so the confirmation link would be broken on " +
+        "arrival. Set SITE_URL to your real domain and redeploy.",
+    );
+    return { delivered: false, reason: "unmailable-origin" };
+  }
 
   const api = client();
   if (!api) {
