@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { siteUrl } from "./site-url";
+import { isOriginMailable, siteUrl } from "./site-url";
 
 /**
  * Regression tests for a bug that broke a production deploy on 2026-09-04.
@@ -20,6 +20,7 @@ import { siteUrl } from "./site-url";
 const KEYS = [
   "SITE_URL",
   "NEXT_PUBLIC_SITE_URL",
+  "VERCEL_PROJECT_PRODUCTION_URL",
   "VERCEL_URL",
   "NODE_ENV",
 ] as const;
@@ -72,6 +73,15 @@ describe("siteUrl", () => {
     expect(siteUrl()).toBe("https://preview-abc.vercel.app");
   });
 
+  it("prefers the stable production URL over the per-deployment one", () => {
+    // The regression that broke confirmation links in production: falling
+    // through to VERCEL_URL produced a per-deployment host sitting behind
+    // Deployment Protection, whose SSO bounce strips the ?token= query.
+    process.env.VERCEL_PROJECT_PRODUCTION_URL = "changewithpulse.com";
+    process.env.VERCEL_URL = "changewithpulse-4liy157l9-avalon-sueiros-projects.vercel.app";
+    expect(siteUrl()).toBe("https://changewithpulse.com");
+  });
+
   it("rejects a value that parses but has no hostname", () => {
     process.env.SITE_URL = "https://";
     expect(siteUrl()).toBe("http://localhost:3000");
@@ -117,6 +127,37 @@ describe("siteUrl", () => {
 
   it("always returns something new URL() accepts, even with nothing configured", () => {
     expect(() => new URL(siteUrl())).not.toThrow();
+  });
+
+  describe("isOriginMailable", () => {
+    it("rejects the exact host that broke confirmation links in production", () => {
+      process.env.SITE_URL =
+        "https://changewithpulse-4liy157l9-avalon-sueiros-projects.vercel.app";
+      expect(isOriginMailable()).toBe(false);
+    });
+
+    it("rejects any per-deployment hostname", () => {
+      for (const host of [
+        "https://myapp-a1b2c3d4e-my-team.vercel.app",
+        "https://foo-9zzzzzzzz-someones-projects.vercel.app",
+      ]) {
+        process.env.SITE_URL = host;
+        expect(isOriginMailable(), host).toBe(false);
+      }
+    });
+
+    it("accepts stable hosts", () => {
+      for (const host of [
+        "https://changewithpulse.com",
+        "https://www.changewithpulse.com",
+        // The project-level vercel.app alias is stable across deploys.
+        "https://changewithpulse.vercel.app",
+        "http://localhost:3000",
+      ]) {
+        process.env.SITE_URL = host;
+        expect(isOriginMailable(), host).toBe(true);
+      }
+    });
   });
 
   // SITE_URL replaced NEXT_PUBLIC_SITE_URL: nothing in the browser reads it,
