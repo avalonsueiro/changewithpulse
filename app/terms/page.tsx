@@ -8,19 +8,11 @@ export const metadata: Metadata = {
     "The terms that apply to joining the Pulse waitlist and using this site.",
 };
 
-const UPDATED = "4 September 2026";
+const UPDATED = "7 September 2026";
 
 export default function TermsPage() {
   return (
     <LegalPage title="Terms" updated={UPDATED}>
-      <div className="legal-note">
-        <p>
-          <strong>Placeholders to replace before launch:</strong> the contact
-          address <code>hello@example.com</code>, the legal entity name, and the
-          governing jurisdiction. A template, not legal advice.
-        </p>
-      </div>
-
       <p>
         This site does one thing: it takes an email address for a waitlist.
         These terms cover that, and nothing more.
@@ -90,8 +82,11 @@ export default function TermsPage() {
 
       <h2>Contact</h2>
       <p>
-        <code>hello@example.com</code>. Governed by the laws of{" "}
-        <em>[jurisdiction to be specified]</em>.
+        Questions about these terms:{" "}
+        <a href="mailto:founders@changewithpulse.com">
+          founders@changewithpulse.com
+        </a>
+        .
       </p>
     </LegalPage>
   );

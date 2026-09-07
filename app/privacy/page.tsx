@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 };
 
 // Bump when the policy changes materially.
-const UPDATED = "4 September 2026";
+const UPDATED = "7 September 2026";
 
 /**
  * Written to match what the code actually does. Every field listed below is a
@@ -19,16 +19,6 @@ const UPDATED = "4 September 2026";
 export default function PrivacyPage() {
   return (
     <LegalPage title="Privacy Policy" updated={UPDATED}>
-      <div className="legal-note">
-        <p>
-          <strong>Placeholders to replace before launch:</strong> the contact
-          address <code>privacy@example.com</code> and the governing
-          jurisdiction below. This document describes the software accurately,
-          but it is a template, not legal advice — have someone qualified read
-          it if you are collecting at scale or from regulated sectors.
-        </p>
-      </div>
-
       <p>
         Pulse runs a waitlist. This page explains exactly what we store when you
         enter your email address, why we store it, and how to get rid of it.
@@ -142,8 +132,11 @@ export default function PrivacyPage() {
       </p>
       <p>
         The fastest routes: click <strong>unsubscribe</strong> in any email we
-        send, or email <code>privacy@example.com</code>. We will respond within
-        30 days.
+        send, or email{" "}
+        <a href="mailto:founders@changewithpulse.com">
+          founders@changewithpulse.com
+        </a>
+        . We will respond within 30 days.
       </p>
 
       <h2>Cookies</h2>
@@ -166,8 +159,11 @@ export default function PrivacyPage() {
 
       <h2>Contact</h2>
       <p>
-        Questions about any of this: <code>privacy@example.com</code>. Governed
-        by the laws of <em>[jurisdiction to be specified]</em>.
+        Questions about any of this, or to exercise any of the rights above:{" "}
+        <a href="mailto:founders@changewithpulse.com">
+          founders@changewithpulse.com
+        </a>
+        .
       </p>
     </LegalPage>
   );

@@ -302,16 +302,6 @@ input::placeholder { color: #8A8880; letter-spacing: 0.04em; }
   padding: 2px 6px;
 }
 
-.legal-note {
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: #fff;
-  padding: 18px 20px;
-  margin: 0 0 clamp(28px, 5vw, 40px);
-}
-
-.legal-note p { margin: 0; font-size: 14px; color: #6e6c65; }
-
 .legal-table {
   width: 100%;
   border-collapse: collapse;
